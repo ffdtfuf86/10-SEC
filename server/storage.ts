@@ -18,10 +18,6 @@ export interface IStorage {
   updatePlayerMessage(playerId: string, message: string): Promise<Player>;
 }
 
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL environment variable is not set. Please ensure the database is properly configured.");
-}
-
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const db = drizzle(pool);
 
