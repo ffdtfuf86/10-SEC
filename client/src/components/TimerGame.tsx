@@ -98,7 +98,7 @@ export default function TimerGame({ playerName }: TimerGameProps) {
 
     playStopSound();
 
-    const perfect = Math.abs(finalTime - 10.0) <= 0.05;
+    const perfect = finalTime >= 9.995 && finalTime <= 10.005;
     setIsPerfect(perfect);
 
     try {

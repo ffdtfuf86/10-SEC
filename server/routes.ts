@@ -11,7 +11,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid request data" });
       }
 
-      const isPerfect = Math.abs(time - 10.0) <= 0.05;
+      const isPerfect = time >= 9.995 && time <= 10.005;
 
       if (!isPerfect) {
         return res.json({
