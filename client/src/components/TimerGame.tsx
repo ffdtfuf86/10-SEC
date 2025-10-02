@@ -29,7 +29,10 @@ export default function TimerGame({ playerName }: TimerGameProps) {
   const [attempts, setAttempts] = useState(0);
   const [rank, setRank] = useState<number | null>(null);
   const [isPerfect, setIsPerfect] = useState(false);
+  const [showWaitScreen, setShowWaitScreen] = useState(false);
+  const [waitTimeLeft, setWaitTimeLeft] = useState(120);
   const intervalRef = useRef<number | null>(null);
+  const waitIntervalRef = useRef<number | null>(null);
 
   const { data: leaderboardData } = useQuery<LeaderboardData>({
     queryKey: ["/api/leaderboard"],
@@ -137,10 +140,87 @@ export default function TimerGame({ playerName }: TimerGameProps) {
   };
 
   const handleTryAgain = () => {
+    if (attempts > 0 && attempts % 2 === 0) {
+      setShowWaitScreen(true);
+      setWaitTimeLeft(120);
+    } else {
+      handleStart();
+    }
+  };
+
+  const handleWatchAd = () => {
+    setShowWaitScreen(false);
     handleStart();
   };
 
+  const handleWait = () => {
+    waitIntervalRef.current = window.setInterval(() => {
+      setWaitTimeLeft((prev) => {
+        if (prev <= 1) {
+          if (waitIntervalRef.current) {
+            clearInterval(waitIntervalRef.current);
+            waitIntervalRef.current = null;
+          }
+          setShowWaitScreen(false);
+          handleStart();
+          return 120;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (waitIntervalRef.current) {
+        clearInterval(waitIntervalRef.current);
+      }
+    };
+  }, []);
+
   const topPlayer = leaderboardData?.topPlayer;
+
+  if (showWaitScreen) {
+    return (
+      <div className="min-h-screen bg-black flex flex-col pt-32">
+        {topPlayer && (
+          <Top1Banner 
+            playerName={topPlayer.name} 
+            attempts={topPlayer.firstPerfectAttempt} 
+            message="No one can beat me"
+          />
+        )}
+        
+        <div className="flex-1 flex flex-col items-center justify-center p-4 space-y-8">
+          <div className="text-center space-y-6">
+            <h2 className="text-3xl md:text-4xl font-bold text-white">
+              Take a Break!
+            </h2>
+            <p className="text-xl text-white/70">
+              You've used 2 attempts
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-4 w-full max-w-md">
+            <Button
+              onClick={handleWatchAd}
+              className="h-16 text-lg bg-white text-black hover:bg-white/90"
+            >
+              Watch Ad to Continue
+            </Button>
+            
+            <Button
+              onClick={handleWait}
+              variant="outline"
+              className="h-16 text-lg bg-transparent border-2 border-white/20 text-white hover:bg-white/10"
+            >
+              Wait {Math.floor(waitTimeLeft / 60)}:{(waitTimeLeft % 60).toString().padStart(2, '0')} to Restart
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black flex flex-col pt-32">
