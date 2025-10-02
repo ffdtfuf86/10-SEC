@@ -73,9 +73,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ error: "Only the current record holder can update their message" });
       }
 
-      topPlayer.message = message;
+      const updatedPlayer = await storage.updatePlayerMessage(topPlayer.id, message);
       
-      res.json({ success: true, player: topPlayer });
+      res.json({ success: true, player: updatedPlayer });
     } catch (error) {
       console.error("Error updating message:", error);
       res.status(500).json({ error: "Internal server error" });

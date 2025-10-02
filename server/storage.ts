@@ -1,7 +1,10 @@
 import { type User, type InsertUser, type Player, type InsertPlayer, users, players } from "@shared/schema";
 import { drizzle } from "drizzle-orm/neon-serverless";
-import { Pool } from "@neondatabase/serverless";
+import { Pool, neonConfig } from "@neondatabase/serverless";
 import { eq, asc } from "drizzle-orm";
+import ws from "ws";
+
+neonConfig.webSocketConstructor = ws;
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
@@ -12,6 +15,7 @@ export interface IStorage {
   getTopPlayer(): Promise<Player | null>;
   getPlayerRank(playerId: string): Promise<number>;
   getAllPlayers(): Promise<Player[]>;
+  updatePlayerMessage(playerId: string, message: string): Promise<Player>;
 }
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -94,6 +98,15 @@ export class DbStorage implements IStorage {
       .select()
       .from(players)
       .orderBy(asc(players.firstPerfectAttempt));
+  }
+
+  async updatePlayerMessage(playerId: string, message: string): Promise<Player> {
+    const updated = await db
+      .update(players)
+      .set({ message })
+      .where(eq(players.id, playerId))
+      .returning();
+    return updated[0];
   }
 }
 
