@@ -58,8 +58,8 @@ export default function TimerGame({ playerName }: TimerGameProps) {
         setTime((prevTime) => {
           const newTime = prevTime + increment;
           
-          if (attempts < 7 && newTime >= 9.995 && newTime <= 10.005) {
-            return 10.01;
+          if (attempts < 7 && newTime >= 9.99 && newTime < 10.01) {
+            return 10.012;
           }
           
           return newTime;
