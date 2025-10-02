@@ -14,6 +14,7 @@ interface TopPlayer {
   id: string;
   name: string;
   firstPerfectAttempt: number;
+  message?: string;
 }
 
 interface LeaderboardData {
@@ -34,6 +35,9 @@ export default function TimerGame({ playerName }: TimerGameProps) {
   const [wrongAttempts, setWrongAttempts] = useState(0);
   const [showSlowTimerOption, setShowSlowTimerOption] = useState(false);
   const [hasSlowTimer, setHasSlowTimer] = useState(false);
+  const [showMessageInput, setShowMessageInput] = useState(false);
+  const [customMessage, setCustomMessage] = useState("");
+  const [messageError, setMessageError] = useState("");
   const intervalRef = useRef<number | null>(null);
   const waitIntervalRef = useRef<number | null>(null);
 
@@ -42,8 +46,12 @@ export default function TimerGame({ playerName }: TimerGameProps) {
   });
 
   const attemptMutation = useMutation({
-    mutationFn: async (data: { playerName: string; time: number; attempts: number }) => {
+    mutationFn: async (data: { playerName: string; time: number; attempts: number; message?: string }) => {
       const res = await apiRequest("POST", "/api/attempt", data);
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || "Failed to submit attempt");
+      }
       return await res.json();
     },
     onSuccess: () => {
@@ -156,6 +164,9 @@ export default function TimerGame({ playerName }: TimerGameProps) {
 
       if (result.isPerfect && result.rank) {
         setRank(result.rank);
+        if (result.isNewRecord) {
+          setShowMessageInput(true);
+        }
       } else {
         setRank(null);
       }
@@ -189,6 +200,38 @@ export default function TimerGame({ playerName }: TimerGameProps) {
     handleTryAgain();
   };
 
+  const handleSubmitMessage = async () => {
+    if (!customMessage.trim()) {
+      setMessageError("Please enter a message");
+      return;
+    }
+
+    try {
+      const res = await apiRequest("POST", "/api/update-message", {
+        playerName,
+        message: customMessage,
+      });
+      
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || "Failed to submit message");
+      }
+      
+      queryClient.invalidateQueries({ queryKey: ["/api/leaderboard"] });
+      setShowMessageInput(false);
+      setCustomMessage("");
+      setMessageError("");
+    } catch (error: any) {
+      setMessageError(error.message || "Failed to submit message");
+    }
+  };
+
+  const handleSkipMessage = () => {
+    setShowMessageInput(false);
+    setCustomMessage("");
+    setMessageError("");
+  };
+
   const handleWait = () => {
     waitIntervalRef.current = window.setInterval(() => {
       setWaitTimeLeft((prev) => {
@@ -216,6 +259,52 @@ export default function TimerGame({ playerName }: TimerGameProps) {
 
   const topPlayer = leaderboardData?.topPlayer;
 
+  if (showMessageInput) {
+    return (
+      <div className="min-h-screen bg-black flex flex-col pt-32">
+        <div className="flex-1 flex flex-col items-center justify-center p-4 space-y-8">
+          <div className="text-center space-y-6">
+            <h2 className="text-3xl md:text-4xl font-bold text-white">
+              🎉 New Record! 🎉
+            </h2>
+            <p className="text-xl text-white/70">
+              Write a message to show everyone!
+            </p>
+          </div>
+
+          <div className="w-full max-w-md space-y-4">
+            <textarea
+              value={customMessage}
+              onChange={(e) => setCustomMessage(e.target.value)}
+              placeholder="No one can beat me..."
+              maxLength={100}
+              className="w-full h-32 p-4 text-lg bg-black border-2 border-white/20 text-white placeholder:text-white/40 focus:border-white/40 rounded-lg resize-none"
+            />
+            {messageError && (
+              <p className="text-red-500 text-sm">{messageError}</p>
+            )}
+            
+            <div className="flex flex-col gap-3">
+              <Button
+                onClick={handleSubmitMessage}
+                className="h-14 text-lg bg-white text-black hover:bg-white/90"
+              >
+                Submit Message
+              </Button>
+              <Button
+                onClick={handleSkipMessage}
+                variant="outline"
+                className="h-14 text-lg bg-transparent border-2 border-white/20 text-white hover:bg-white/10"
+              >
+                Skip
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (showSlowTimerOption) {
     return (
       <div className="min-h-screen bg-black flex flex-col pt-32">
@@ -223,7 +312,7 @@ export default function TimerGame({ playerName }: TimerGameProps) {
           <Top1Banner 
             playerName={topPlayer.name} 
             attempts={topPlayer.firstPerfectAttempt} 
-            message="No one can beat me"
+            message={topPlayer.message}
           />
         )}
         
@@ -268,7 +357,7 @@ export default function TimerGame({ playerName }: TimerGameProps) {
           <Top1Banner 
             playerName={topPlayer.name} 
             attempts={topPlayer.firstPerfectAttempt} 
-            message="No one can beat me"
+            message={topPlayer.message}
           />
         )}
         
@@ -309,7 +398,7 @@ export default function TimerGame({ playerName }: TimerGameProps) {
         <Top1Banner 
           playerName={topPlayer.name} 
           attempts={topPlayer.firstPerfectAttempt} 
-          message="No one can beat me"
+          message={topPlayer.message}
         />
       )}
       

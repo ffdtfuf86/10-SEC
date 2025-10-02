@@ -28,6 +28,7 @@ export class MemStorage implements IStorage {
       perfectAttempts: 1,
       firstPerfectAttempt: 19,
       bestTime: 10.00,
+      message: "No one can beat me",
     });
   }
 
@@ -48,7 +49,7 @@ export class MemStorage implements IStorage {
     return user;
   }
 
-  async createOrUpdatePlayer(name: string, attempts: number): Promise<Player> {
+  async createOrUpdatePlayer(name: string, attempts: number, message?: string): Promise<Player> {
     const currentBest = await this.getTopPlayer();
     
     if (currentBest && currentBest.firstPerfectAttempt && attempts >= currentBest.firstPerfectAttempt) {
@@ -65,6 +66,7 @@ export class MemStorage implements IStorage {
       perfectAttempts: 1,
       firstPerfectAttempt: attempts,
       bestTime: 10.00,
+      message: message || "No one can beat me",
     };
     this.players.set(id, player);
     return player;

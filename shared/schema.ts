@@ -17,6 +17,7 @@ export const players = pgTable("players", {
   perfectAttempts: integer("perfect_attempts").notNull().default(0),
   firstPerfectAttempt: integer("first_perfect_attempt"),
   bestTime: real("best_time"),
+  message: text("message"),
 });
 
 export const attempts = pgTable("attempts", {
