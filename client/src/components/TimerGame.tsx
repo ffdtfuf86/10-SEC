@@ -1,16 +1,27 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import Top1Banner from "./Top1Banner";
 import TimerDisplay from "./TimerDisplay";
 import RankDisplay from "./RankDisplay";
 
 interface TimerGameProps {
   playerName: string;
-  onAttempt?: (time: number) => void;
 }
 
+interface TopPlayer {
+  id: string;
+  name: string;
+  firstPerfectAttempt: number;
+}
 
-export default function TimerGame({ playerName, onAttempt }: TimerGameProps) {
+interface LeaderboardData {
+  topPlayer: TopPlayer | null;
+  players: TopPlayer[];
+}
+
+export default function TimerGame({ playerName }: TimerGameProps) {
   const [time, setTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
@@ -19,6 +30,20 @@ export default function TimerGame({ playerName, onAttempt }: TimerGameProps) {
   const [rank, setRank] = useState<number | null>(null);
   const [isPerfect, setIsPerfect] = useState(false);
   const intervalRef = useRef<number | null>(null);
+
+  const { data: leaderboardData } = useQuery<LeaderboardData>({
+    queryKey: ["/api/leaderboard"],
+  });
+
+  const attemptMutation = useMutation({
+    mutationFn: async (data: { playerName: string; time: number; attempts: number }) => {
+      const res = await apiRequest("POST", "/api/attempt", data);
+      return await res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/leaderboard"] });
+    },
+  });
 
   useEffect(() => {
     if (isRunning) {
@@ -64,7 +89,7 @@ export default function TimerGame({ playerName, onAttempt }: TimerGameProps) {
     oscillator.stop(audioContext.currentTime + 0.1);
   };
 
-  const handleStop = () => {
+  const handleStop = async () => {
     setIsRunning(false);
     setHasStopped(true);
     const finalTime = time;
@@ -75,28 +100,39 @@ export default function TimerGame({ playerName, onAttempt }: TimerGameProps) {
 
     const perfect = Math.abs(finalTime - 10.0) <= 0.05;
     setIsPerfect(perfect);
-    
-    const mockRank = Math.floor(Math.random() * 20) + 1;
-    setRank(mockRank);
 
-    if (onAttempt) {
-      onAttempt(finalTime);
+    try {
+      const result = await attemptMutation.mutateAsync({
+        playerName,
+        time: finalTime,
+        attempts: newAttempts,
+      });
+
+      if (result.isPerfect && result.rank) {
+        setRank(result.rank);
+      } else {
+        setRank(null);
+      }
+    } catch (error) {
+      console.error("Error submitting attempt:", error);
     }
-
-    console.log(`Attempt ${newAttempts}: ${finalTime.toFixed(2)}s - ${perfect ? 'Perfect!' : 'Try again'}`);
   };
 
   const handleTryAgain = () => {
     handleStart();
   };
 
+  const topPlayer = leaderboardData?.topPlayer;
+
   return (
     <div className="min-h-screen bg-black flex flex-col">
-      <Top1Banner 
-        playerName="App Founder" 
-        attempts={9} 
-        message="No one can beat me"
-      />
+      {topPlayer && (
+        <Top1Banner 
+          playerName={topPlayer.name} 
+          attempts={topPlayer.firstPerfectAttempt} 
+          message="No one can beat me"
+        />
+      )}
       
       <div className="flex-1 flex flex-col items-center justify-center p-4 space-y-12">
         <TimerDisplay time={time} />
@@ -123,7 +159,21 @@ export default function TimerGame({ playerName, onAttempt }: TimerGameProps) {
           
           {hasStopped && (
             <div className="space-y-6 flex flex-col items-center">
-              <RankDisplay rank={rank} isPerfect={isPerfect} attempts={attempts} />
+              {isPerfect ? (
+                <RankDisplay rank={rank} isPerfect={isPerfect} attempts={attempts} />
+              ) : (
+                <div className="text-center space-y-2">
+                  <p className="text-2xl md:text-3xl font-medium text-white/60" data-testid="text-miss">
+                    Missed! Try again
+                  </p>
+                  <p className="text-lg text-white/40" data-testid="text-time-result">
+                    You stopped at {time.toFixed(2)}s
+                  </p>
+                  <p className="text-lg text-white/60" data-testid="text-attempts-display">
+                    Attempts: {attempts}
+                  </p>
+                </div>
+              )}
               
               <Button
                 onClick={handleTryAgain}

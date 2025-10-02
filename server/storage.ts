@@ -1,20 +1,34 @@
-import { type User, type InsertUser } from "@shared/schema";
+import { type User, type InsertUser, type Player, type InsertPlayer } from "@shared/schema";
 import { randomUUID } from "crypto";
-
-// modify the interface with any CRUD methods
-// you might need
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  
+  createOrUpdatePlayer(name: string, attempts: number): Promise<Player>;
+  getTopPlayer(): Promise<Player | null>;
+  getPlayerRank(playerId: string): Promise<number>;
+  getAllPlayers(): Promise<Player[]>;
 }
 
 export class MemStorage implements IStorage {
   private users: Map<string, User>;
+  private players: Map<string, Player>;
 
   constructor() {
     this.users = new Map();
+    this.players = new Map();
+    
+    const founderId = randomUUID();
+    this.players.set(founderId, {
+      id: founderId,
+      name: "App Founder",
+      totalAttempts: 9,
+      perfectAttempts: 1,
+      firstPerfectAttempt: 9,
+      bestTime: 10.00,
+    });
   }
 
   async getUser(id: string): Promise<User | undefined> {
@@ -32,6 +46,60 @@ export class MemStorage implements IStorage {
     const user: User = { ...insertUser, id };
     this.users.set(id, user);
     return user;
+  }
+
+  async createOrUpdatePlayer(name: string, attempts: number): Promise<Player> {
+    const existingPlayer = Array.from(this.players.values()).find(
+      (p) => p.name === name
+    );
+
+    if (existingPlayer) {
+      existingPlayer.perfectAttempts += 1;
+      existingPlayer.totalAttempts = attempts;
+      if (!existingPlayer.firstPerfectAttempt || attempts < existingPlayer.firstPerfectAttempt) {
+        existingPlayer.firstPerfectAttempt = attempts;
+      }
+      this.players.set(existingPlayer.id, existingPlayer);
+      return existingPlayer;
+    }
+
+    const id = randomUUID();
+    const player: Player = {
+      id,
+      name,
+      totalAttempts: attempts,
+      perfectAttempts: 1,
+      firstPerfectAttempt: attempts,
+      bestTime: 10.00,
+    };
+    this.players.set(id, player);
+    return player;
+  }
+
+  async getTopPlayer(): Promise<Player | null> {
+    const allPlayers = Array.from(this.players.values());
+    if (allPlayers.length === 0) return null;
+
+    return allPlayers.reduce((top, current) => {
+      if (!current.firstPerfectAttempt) return top;
+      if (!top.firstPerfectAttempt) return current;
+      return current.firstPerfectAttempt < top.firstPerfectAttempt ? current : top;
+    });
+  }
+
+  async getPlayerRank(playerId: string): Promise<number> {
+    const allPlayers = Array.from(this.players.values())
+      .filter(p => p.firstPerfectAttempt !== null && p.firstPerfectAttempt !== undefined)
+      .sort((a, b) => (a.firstPerfectAttempt || 0) - (b.firstPerfectAttempt || 0));
+
+    const rank = allPlayers.findIndex(p => p.id === playerId);
+    return rank === -1 ? allPlayers.length + 1 : rank + 1;
+  }
+
+  async getAllPlayers(): Promise<Player[]> {
+    return Array.from(this.players.values())
+      .filter(p => p.firstPerfectAttempt !== null && p.firstPerfectAttempt !== undefined)
+      .sort((a, b) => (a.firstPerfectAttempt || 0) - (b.firstPerfectAttempt || 0));
   }
 }
 
