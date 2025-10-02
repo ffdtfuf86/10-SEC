@@ -4,6 +4,7 @@ interface TimerDisplayProps {
 
 export default function TimerDisplay({ time }: TimerDisplayProps) {
   const formattedTime = time.toFixed(2);
+
   
   return (
     <div className="text-center">

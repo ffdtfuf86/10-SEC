@@ -6,6 +6,7 @@ interface NameInputProps {
   onSubmit: (name: string) => void;
 }
 
+
 export default function NameInput({ onSubmit }: NameInputProps) {
   const [name, setName] = useState("");
 

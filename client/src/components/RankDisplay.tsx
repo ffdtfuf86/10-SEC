@@ -6,6 +6,7 @@ interface RankDisplayProps {
 
 export default function RankDisplay({ rank, isPerfect, attempts }: RankDisplayProps) {
   if (rank === null) return null;
+
   
   return (
     <div className="text-center space-y-2">

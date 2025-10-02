@@ -9,6 +9,7 @@ interface TimerGameProps {
   onAttempt?: (time: number) => void;
 }
 
+
 export default function TimerGame({ playerName, onAttempt }: TimerGameProps) {
   const [time, setTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
