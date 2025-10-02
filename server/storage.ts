@@ -19,16 +19,6 @@ export class MemStorage implements IStorage {
   constructor() {
     this.users = new Map();
     this.players = new Map();
-    
-    const founderId = randomUUID();
-    this.players.set(founderId, {
-      id: founderId,
-      name: "App Founder",
-      totalAttempts: 9,
-      perfectAttempts: 1,
-      firstPerfectAttempt: 9,
-      bestTime: 10.00,
-    });
   }
 
   async getUser(id: string): Promise<User | undefined> {
@@ -49,19 +39,7 @@ export class MemStorage implements IStorage {
   }
 
   async createOrUpdatePlayer(name: string, attempts: number): Promise<Player> {
-    const existingPlayer = Array.from(this.players.values()).find(
-      (p) => p.name === name
-    );
-
-    if (existingPlayer) {
-      existingPlayer.perfectAttempts += 1;
-      existingPlayer.totalAttempts = attempts;
-      if (!existingPlayer.firstPerfectAttempt || attempts < existingPlayer.firstPerfectAttempt) {
-        existingPlayer.firstPerfectAttempt = attempts;
-      }
-      this.players.set(existingPlayer.id, existingPlayer);
-      return existingPlayer;
-    }
+    this.players.clear();
 
     const id = randomUUID();
     const player: Player = {
