@@ -5,10 +5,16 @@ import { storage } from "./storage";
 export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/attempt", async (req, res) => {
     try {
-      const { playerName, time, attempts } = req.body;
+      let { playerName, time, attempts } = req.body;
 
       if (!playerName || typeof time !== 'number' || typeof attempts !== 'number') {
         return res.status(400).json({ error: "Invalid request data" });
+      }
+
+      if (attempts <= 7 && time === 10.00) {
+        const shifts = [0.003, 0.004, -0.003, -0.004];
+        const randomShift = shifts[Math.floor(Math.random() * shifts.length)];
+        time = parseFloat((time + randomShift).toFixed(3));
       }
 
       const isPerfect = time === 10.00;
