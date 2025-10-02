@@ -39,6 +39,12 @@ export class MemStorage implements IStorage {
   }
 
   async createOrUpdatePlayer(name: string, attempts: number): Promise<Player> {
+    const currentBest = await this.getTopPlayer();
+    
+    if (currentBest && currentBest.firstPerfectAttempt && attempts >= currentBest.firstPerfectAttempt) {
+      return currentBest;
+    }
+
     this.players.clear();
 
     const id = randomUUID();
