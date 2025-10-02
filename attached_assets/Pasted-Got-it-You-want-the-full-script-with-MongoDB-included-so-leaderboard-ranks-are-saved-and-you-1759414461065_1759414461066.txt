@@ -1,0 +1,228 @@
+Got it 👍 You want the full script with MongoDB included (so leaderboard + ranks are saved), and you want it explained step by step so you can paste into Replit AI or follow directly.
+
+Here’s the clear instruction script for Replit with MongoDB + Render deployment:
+
+
+---
+
+📜 Script for Replit (Node.js + Express + MongoDB App)
+
+
+---
+
+Step 1: Setup Project
+
+Create new Node.js project in Replit.
+
+Name it: 10second-timer-app.
+
+Replit auto-generates package.json.
+
+
+
+---
+
+Step 2: Install Dependencies
+
+Tell Replit to install:
+
+npm install express mongoose cors
+
+(mongoose = MongoDB connection, cors = frontend API calls allowed).
+
+
+---
+
+Step 3: Create Main Server File
+
+Make a file index.js.
+
+Paste this code inside:
+
+
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const path = require("path");
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
+
+// --- MongoDB Setup ---
+mongoose.connect(process.env.MONGO_URL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+}).then(() => console.log("✅ MongoDB Connected"))
+  .catch(err => console.error("❌ MongoDB Error:", err));
+
+// --- Schema & Model ---
+const playerSchema = new mongoose.Schema({
+  name: String,
+  attempts: Number,
+  message: String,
+});
+
+const Player = mongoose.model("Player", playerSchema);
+
+// --- API Routes ---
+app.post("/api/save", async (req, res) => {
+  const { name, attempts, message } = req.body;
+  const player = new Player({ name, attempts, message });
+  await player.save();
+  res.json({ success: true });
+});
+
+app.get("/api/leaderboard", async (req, res) => {
+  const leaders = await Player.find().sort({ attempts: 1 }).limit(10);
+  res.json(leaders);
+});
+
+// --- Serve Frontend ---
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(🚀 Server running on ${PORT}));
+
+
+---
+
+Step 4: Frontend
+
+Make folder: public/.
+
+Inside it, create:
+
+index.html (UI)
+
+style.css (black theme, red timer, centered layout)
+
+script.js (timer logic + API calls).
+
+
+
+In index.html:
+
+Ask for player name (input + button).
+
+Show timer (00.00 → red).
+
+Show Start button → turns into a red “Stop” button.
+
+After stop: calculate difference from 10s.
+
+If exact 10.00 → success → send attempt count to backend via /api/save.
+
+At top: show “Top 1 did it in X attempts — ‘No one can beat my record!’”.
+
+
+In script.js:
+
+Handle timer start/stop.
+
+Track attempts.
+
+Every 2 attempts → show fake ad popup (later replace with real ads).
+
+Call /api/save after success.
+
+Call /api/leaderboard to refresh leaderboard.
+
+
+
+---
+
+Step 5: MongoDB Setup
+
+Go to MongoDB Atlas.
+
+Create free cluster.
+
+Get connection string (looks like):
+
+mongodb+srv://<username>:<password>@cluster0.mongodb.net/timerapp
+
+In Replit:
+
+Go to “Secrets” (lock icon in left bar).
+
+Add key:
+
+MONGO_URL = mongodb+srv://username:password@cluster0.mongodb.net/timerapp
+
+
+
+
+---
+
+Step 6: Package.json Fix
+
+Make sure package.json has:
+
+"scripts": {
+  "start": "node index.js"
+}
+
+
+---
+
+Step 7: Run in Replit
+
+Click Run.
+
+If MongoDB is connected → you’ll see ✅ message.
+
+Try the app → timer should work, leaderboard saved in DB.
+
+
+
+---
+
+Step 8: Deploy to Render
+
+1. Push code to GitHub.
+
+
+2. Go to Render.
+
+
+3. Create Web Service → connect repo.
+
+
+4. Add environment variable in Render:
+
+MONGO_URL = mongodb+srv://username:password@cluster0.mongodb.net/timerapp
+
+
+5. Start Command:
+
+npm start
+
+
+6. Deploy → done ✅.
+
+
+
+
+---
+
+📌 This way you’ll have:
+
+Timer app (black + red UI).
+
+MongoDB storing leaderboard.
+
+Ranking system (based on attempts).
+
+Fake ad logic every 2 attempts.
+
+Leaderboard always showing top 1 with their “feedback message”.
+
+
+
+---
+
+👉 Do you want me to also write the exact frontend script.js logic in text form (so Replit AI can generate it fully), or do you just need this setup script?
