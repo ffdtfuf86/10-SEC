@@ -48,7 +48,7 @@ export default function TimerGame({ playerName }: TimerGameProps) {
   useEffect(() => {
     if (isRunning) {
       intervalRef.current = window.setInterval(() => {
-        setTime((prevTime) => prevTime + 0.01);
+        setTime((prevTime) => prevTime + 0.012);
       }, 10);
     } else if (intervalRef.current) {
       clearInterval(intervalRef.current);
