@@ -249,6 +249,13 @@ export default function TimerGame({ playerName }: TimerGameProps) {
     }, 1000);
   };
 
+  const handleRestartFromZero = () => {
+    setAttempts(0);
+    setWrongAttempts(0);
+    setShowWaitScreen(false);
+    handleStart();
+  };
+
   useEffect(() => {
     return () => {
       if (waitIntervalRef.current) {
@@ -376,7 +383,7 @@ export default function TimerGame({ playerName }: TimerGameProps) {
               onClick={handleWatchAd}
               className="h-16 text-lg bg-white text-black hover:bg-white/90"
             >
-              Watch Ad to Continue
+              Watch 2 Ads to Continue
             </Button>
             
             <Button
@@ -385,6 +392,14 @@ export default function TimerGame({ playerName }: TimerGameProps) {
               className="h-16 text-lg bg-transparent border-2 border-white/20 text-white hover:bg-white/10"
             >
               Wait {Math.floor(waitTimeLeft / 60)}:{(waitTimeLeft % 60).toString().padStart(2, '0')} to Restart
+            </Button>
+            
+            <Button
+              onClick={handleRestartFromZero}
+              variant="outline"
+              className="h-16 text-lg bg-transparent border-2 border-green-500/40 text-green-400 hover:bg-green-500/10 hover:border-green-500/60"
+            >
+              Restart from 0 Attempts
             </Button>
           </div>
         </div>
