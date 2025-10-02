@@ -1,0 +1,98 @@
+==> Downloading cache...
+==> Cloning from https://github.com/ffdtfuf86/10-SEC
+==> Checking out commit cca50f40d9d8da6a7e76daf46754e476ceede4f8 in branch main
+==> Transferred 199MB in 8s. Extraction took 4s.
+==> Using Node.js version 22.16.0 (default)
+==> Docs on specifying a Node.js version: https://render.com/docs/node-version
+==> Running build command 'npm install; npm run build'...
+up to date, audited 479 packages in 2s
+64 packages are looking for funding
+  run `npm fund` for details
+8 vulnerabilities (3 low, 5 moderate)
+To address issues that do not require attention, run:
+  npm audit fix
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+Run `npm audit` for details.
+> rest-express@1.0.0 build
+> vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+vite v5.4.20 building for production...
+transforming...
+Browserslist: browsers data (caniuse-lite) is 12 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+A PostCSS plugin did not pass the `from` option to `postcss.parse`. This may cause imported assets to be incorrectly transformed. If you've recently added a PostCSS plugin that raised this warning, please contact the package author to fix the issue.
+✓ 1668 modules transformed.
+rendering chunks...
+computing gzip size...
+../dist/public/index.html                   2.19 kB │ gzip:  0.87 kB
+../dist/public/assets/index-DYwvoleg.css   70.80 kB │ gzip: 11.40 kB
+../dist/public/assets/index-shDsBEB9.js   283.35 kB │ gzip: 91.46 kB
+✓ built in 3.11s
+  dist/index.js  11.6kb
+⚡ Done in 4ms
+==> Uploading build...
+==> Uploaded in 7.9s. Compression took 3.1s
+==> Build successful 🎉
+==> Deploying...
+==> Running 'npm run start'
+> rest-express@1.0.0 start
+> NODE_ENV=production node dist/index.js
+1:19:29 PM [express] serving on port 10000
+==> Your service is live 🎉
+==> 
+==> ///////////////////////////////////////////////////////////
+==> 
+==> Available at your primary URL https://one0-sec.onrender.com
+==> 
+==> ///////////////////////////////////////////////////////////
+Error fetching leaderboard: Error: No database host or connection string was set, and key parameters have default values (host: localhost, user: undefined, db: undefined, password: null). Is an environment variable missing? Alternatively, if you intended to connect with these parameters, please set the host to 'localhost' explicitly.
+    at An.connect (file:///opt/render/project/src/node_modules/@neondatabase/serverless/index.mjs:1579:62)
+    at Cn.newClient (file:///opt/render/project/src/node_modules/@neondatabase/serverless/index.mjs:1383:3)
+    at Cn.connect (file:///opt/render/project/src/node_modules/@neondatabase/serverless/index.mjs:1378:23)
+    at Cn.query (file:///opt/render/project/src/node_modules/@neondatabase/serverless/index.mjs:1407:63)
+    at Cn.query (file:///opt/render/project/src/node_modules/@neondatabase/serverless/index.mjs:1623:14)
+    at NeonPreparedQuery.execute (file:///opt/render/project/src/node_modules/drizzle-orm/neon-serverless/session.js:76:33)
+    at file:///opt/render/project/src/node_modules/drizzle-orm/pg-core/query-builders/select.js:708:30
+    at Object.startActiveSpan (file:///opt/render/project/src/node_modules/drizzle-orm/tracing.js:8:14)
+    at PgSelectBase.execute (file:///opt/render/project/src/node_modules/drizzle-orm/pg-core/query-builders/select.js:707:19)
+    at PgSelectBase.then (file:///opt/render/project/src/node_modules/drizzle-orm/query-promise.js:21:17)
+1:19:47 PM [express] GET /api/leaderboard 500 in 7ms :: {"error":"Internal server error"}
+Error processing attempt: Error: No database host or connection string was set, and key parameters have default values (host: localhost, user: undefined, db: undefined, password: null). Is an environment variable missing? Alternatively, if you intended to connect with these parameters, please set the host to 'localhost' explicitly.
+    at An.connect (file:///opt/render/project/src/node_modules/@neondatabase/serverless/index.mjs:1579:62)
+    at Cn.newClient (file:///opt/render/project/src/node_modules/@neondatabase/serverless/index.mjs:1383:3)
+    at Cn.connect (file:///opt/render/project/src/node_modules/@neondatabase/serverless/index.mjs:1378:23)
+    at Cn.query (file:///opt/render/project/src/node_modules/@neondatabase/serverless/index.mjs:1407:63)
+    at Cn.query (file:///opt/render/project/src/node_modules/@neondatabase/serverless/index.mjs:1623:14)
+    at NeonPreparedQuery.execute (file:///opt/render/project/src/node_modules/drizzle-orm/neon-serverless/session.js:76:33)
+    at file:///opt/render/project/src/node_modules/drizzle-orm/pg-core/query-builders/select.js:708:30
+    at Object.startActiveSpan (file:///opt/render/project/src/node_modules/drizzle-orm/tracing.js:8:14)
+    at PgSelectBase.execute (file:///opt/render/project/src/node_modules/drizzle-orm/pg-core/query-builders/select.js:707:19)
+    at PgSelectBase.then (file:///opt/render/project/src/node_modules/drizzle-orm/query-promise.js:21:17)
+1:19:53 PM [express] POST /api/attempt 500 in 2ms :: {"error":"Internal server error"}
+Error processing attempt: Error: No database host or connection string was set, and key parameters have default values (host: localhost, user: undefined, db: undefined, password: null). Is an environment variable missing? Alternatively, if you intended to connect with these parameters, please set the host to 'localhost' explicitly.
+    at An.connect (file:///opt/render/project/src/node_modules/@neondatabase/serverless/index.mjs:1579:62)
+    at Cn.newClient (file:///opt/render/project/src/node_modules/@neondatabase/serverless/index.mjs:1383:3)
+    at Cn.connect (file:///opt/render/project/src/node_modules/@neondatabase/serverless/index.mjs:1378:23)
+    at Cn.query (file:///opt/render/project/src/node_modules/@neondatabase/serverless/index.mjs:1407:63)
+    at Cn.query (file:///opt/render/project/src/node_modules/@neondatabase/serverless/index.mjs:1623:14)
+    at NeonPreparedQuery.execute (file:///opt/render/project/src/node_modules/drizzle-orm/neon-serverless/session.js:76:33)
+    at file:///opt/render/project/src/node_modules/drizzle-orm/pg-core/query-builders/select.js:708:30
+    at Object.startActiveSpan (file:///opt/render/project/src/node_modules/drizzle-orm/tracing.js:8:14)
+    at PgSelectBase.execute (file:///opt/render/project/src/node_modules/drizzle-orm/pg-core/query-builders/select.js:707:19)
+    at PgSelectBase.then (file:///opt/render/project/src/node_modules/drizzle-orm/query-promise.js:21:17)
+1:19:55 PM [express] POST /api/attempt 500 in 2ms :: {"error":"Internal server error"}
+Error processing attempt: Error: No database host or connection string was set, and key parameters have default values (host: localhost, user: undefined, db: undefined, password: null). Is an environment variable missing? Alternatively, if you intended to connect with these parameters, please set the host to 'localhost' explicitly.
+    at An.connect (file:///opt/render/project/src/node_modules/@neondatabase/serverless/index.mjs:1579:62)
+    at Cn.newClient (file:///opt/render/project/src/node_modules/@neondatabase/serverless/index.mjs:1383:3)
+    at Cn.connect (file:///opt/render/project/src/node_modules/@neondatabase/serverless/index.mjs:1378:23)
+    at Cn.query (file:///opt/render/project/src/node_modules/@neondatabase/serverless/index.mjs:1407:63)
+    at Cn.query (file:///opt/render/project/src/node_modules/@neondatabase/serverless/index.mjs:1623:14)
+    at NeonPreparedQuery.execute (file:///opt/render/project/src/node_modules/drizzle-orm/neon-serverless/session.js:76:33)
+    at file:///opt/render/project/src/node_modules/drizzle-orm/pg-core/query-builders/select.js:708:30
+    at Object.startActiveSpan (file:///opt/render/project/src/node_modules/drizzle-orm/tracing.js:8:14)
+    at PgSelectBase.execute (file:///opt/render/project/src/node_modules/drizzle-orm/pg-core/query-builders/select.js:707:19)
+    at PgSelectBase.then (file:///opt/render/project/src/node_modules/drizzle-orm/query-promise.js:21:17)
+1:19:57 PM [express] POST /api/attempt 500 in 2ms :: {"error":"Internal server error"}
+==> Detected service running on port 10000
+==> Docs on specifying a port: https://render.com/docs/web-services#port-binding
