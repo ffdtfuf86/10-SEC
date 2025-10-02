@@ -55,7 +55,15 @@ export default function TimerGame({ playerName }: TimerGameProps) {
     if (isRunning) {
       const increment = hasSlowTimer ? 0.0108 : 0.012;
       intervalRef.current = window.setInterval(() => {
-        setTime((prevTime) => prevTime + increment);
+        setTime((prevTime) => {
+          const newTime = prevTime + increment;
+          
+          if (attempts < 7 && newTime >= 9.995 && newTime <= 10.005) {
+            return 10.01;
+          }
+          
+          return newTime;
+        });
       }, 10);
     } else if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -67,7 +75,7 @@ export default function TimerGame({ playerName }: TimerGameProps) {
         clearInterval(intervalRef.current);
       }
     };
-  }, [isRunning, hasSlowTimer]);
+  }, [isRunning, hasSlowTimer, attempts]);
 
   const handleStart = () => {
     setTime(0);
