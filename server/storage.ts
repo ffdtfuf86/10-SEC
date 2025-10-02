@@ -1,52 +1,36 @@
-import { type User, type InsertUser, type Player, type InsertPlayer } from "@shared/schema";
-import { randomUUID } from "crypto";
+import { type User, type InsertUser, type Player, type InsertPlayer, users, players } from "@shared/schema";
+import { drizzle } from "drizzle-orm/neon-serverless";
+import { Pool } from "@neondatabase/serverless";
+import { eq, asc } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   
-  createOrUpdatePlayer(name: string, attempts: number): Promise<Player>;
+  createOrUpdatePlayer(name: string, attempts: number, message?: string): Promise<Player>;
   getTopPlayer(): Promise<Player | null>;
   getPlayerRank(playerId: string): Promise<number>;
   getAllPlayers(): Promise<Player[]>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-  private players: Map<string, Player>;
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const db = drizzle(pool);
 
-  constructor() {
-    this.users = new Map();
-    this.players = new Map();
-    
-    const founderId = randomUUID();
-    this.players.set(founderId, {
-      id: founderId,
-      name: "App Founder",
-      totalAttempts: 19,
-      perfectAttempts: 1,
-      firstPerfectAttempt: 19,
-      bestTime: 10.00,
-      message: "No one can beat me",
-    });
-  }
-
+export class DbStorage implements IStorage {
   async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+    const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
+    return result[0];
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const result = await db.select().from(users).where(eq(users.username, username)).limit(1);
+    return result[0];
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+    const result = await db.insert(users).values(insertUser).returning();
+    return result[0];
   }
 
   async createOrUpdatePlayer(name: string, attempts: number, message?: string): Promise<Player> {
@@ -56,47 +40,66 @@ export class MemStorage implements IStorage {
       return currentBest;
     }
 
-    this.players.clear();
+    const existingPlayer = await db.select().from(players).where(eq(players.name, name)).limit(1);
+    
+    if (existingPlayer.length > 0) {
+      const player = existingPlayer[0];
+      if (!player.firstPerfectAttempt || attempts < player.firstPerfectAttempt) {
+        const updated = await db
+          .update(players)
+          .set({
+            firstPerfectAttempt: attempts,
+            perfectAttempts: (player.perfectAttempts || 0) + 1,
+            totalAttempts: attempts,
+            bestTime: 10.00,
+            message: message || player.message || "No one can beat me",
+          })
+          .where(eq(players.id, player.id))
+          .returning();
+        return updated[0];
+      }
+      return player;
+    }
 
-    const id = randomUUID();
-    const player: Player = {
-      id,
+    const result = await db.insert(players).values({
       name,
       totalAttempts: attempts,
       perfectAttempts: 1,
       firstPerfectAttempt: attempts,
       bestTime: 10.00,
       message: message || "No one can beat me",
-    };
-    this.players.set(id, player);
-    return player;
+    }).returning();
+    
+    return result[0];
   }
 
   async getTopPlayer(): Promise<Player | null> {
-    const allPlayers = Array.from(this.players.values());
-    if (allPlayers.length === 0) return null;
+    const result = await db
+      .select()
+      .from(players)
+      .where(eq(players.firstPerfectAttempt, players.firstPerfectAttempt))
+      .orderBy(asc(players.firstPerfectAttempt))
+      .limit(1);
 
-    return allPlayers.reduce((top, current) => {
-      if (!current.firstPerfectAttempt) return top;
-      if (!top.firstPerfectAttempt) return current;
-      return current.firstPerfectAttempt < top.firstPerfectAttempt ? current : top;
-    });
+    return result.length > 0 ? result[0] : null;
   }
 
   async getPlayerRank(playerId: string): Promise<number> {
-    const allPlayers = Array.from(this.players.values())
-      .filter(p => p.firstPerfectAttempt !== null && p.firstPerfectAttempt !== undefined)
-      .sort((a, b) => (a.firstPerfectAttempt || 0) - (b.firstPerfectAttempt || 0));
+    const allPlayers = await db
+      .select()
+      .from(players)
+      .orderBy(asc(players.firstPerfectAttempt));
 
     const rank = allPlayers.findIndex(p => p.id === playerId);
     return rank === -1 ? allPlayers.length + 1 : rank + 1;
   }
 
   async getAllPlayers(): Promise<Player[]> {
-    return Array.from(this.players.values())
-      .filter(p => p.firstPerfectAttempt !== null && p.firstPerfectAttempt !== undefined)
-      .sort((a, b) => (a.firstPerfectAttempt || 0) - (b.firstPerfectAttempt || 0));
+    return await db
+      .select()
+      .from(players)
+      .orderBy(asc(players.firstPerfectAttempt));
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DbStorage();
