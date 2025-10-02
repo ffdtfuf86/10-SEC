@@ -18,7 +18,7 @@ export default function NameInput({ onSubmit }: NameInputProps) {
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-4">
+    <div className="min-h-screen bg-black flex items-center justify-center p-4 pt-32">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center space-y-4">
           <h1 className="text-5xl md:text-6xl font-bold text-white">

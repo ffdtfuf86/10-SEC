@@ -152,7 +152,7 @@ export default function TimerGame({ playerName }: TimerGameProps) {
         />
       )}
       
-      <div className="flex-1 flex flex-col items-center justify-center p-4 space-y-12">
+      <div className="flex-1 flex flex-col items-center justify-center p-4 pt-32 space-y-12">
         <TimerDisplay time={time} />
         
         <div className="flex flex-col items-center space-y-8">
