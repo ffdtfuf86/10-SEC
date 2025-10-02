@@ -31,6 +31,9 @@ export default function TimerGame({ playerName }: TimerGameProps) {
   const [isPerfect, setIsPerfect] = useState(false);
   const [showWaitScreen, setShowWaitScreen] = useState(false);
   const [waitTimeLeft, setWaitTimeLeft] = useState(120);
+  const [wrongAttempts, setWrongAttempts] = useState(0);
+  const [showSlowTimerOption, setShowSlowTimerOption] = useState(false);
+  const [hasSlowTimer, setHasSlowTimer] = useState(false);
   const intervalRef = useRef<number | null>(null);
   const waitIntervalRef = useRef<number | null>(null);
 
@@ -50,8 +53,9 @@ export default function TimerGame({ playerName }: TimerGameProps) {
 
   useEffect(() => {
     if (isRunning) {
+      const increment = hasSlowTimer ? 0.0108 : 0.012;
       intervalRef.current = window.setInterval(() => {
-        setTime((prevTime) => prevTime + 0.012);
+        setTime((prevTime) => prevTime + increment);
       }, 10);
     } else if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -63,7 +67,7 @@ export default function TimerGame({ playerName }: TimerGameProps) {
         clearInterval(intervalRef.current);
       }
     };
-  }, [isRunning]);
+  }, [isRunning, hasSlowTimer]);
 
   const handleStart = () => {
     setTime(0);
@@ -122,6 +126,19 @@ export default function TimerGame({ playerName }: TimerGameProps) {
     const perfect = finalTime === 10.00;
     setIsPerfect(perfect);
 
+    if (!perfect) {
+      const newWrongAttempts = wrongAttempts + 1;
+      setWrongAttempts(newWrongAttempts);
+      
+      if (newWrongAttempts > 0 && newWrongAttempts % 10 === 0 && !hasSlowTimer) {
+        setShowSlowTimerOption(true);
+      }
+    }
+
+    if (hasSlowTimer) {
+      setHasSlowTimer(false);
+    }
+
     try {
       const result = await attemptMutation.mutateAsync({
         playerName,
@@ -153,6 +170,17 @@ export default function TimerGame({ playerName }: TimerGameProps) {
     handleStart();
   };
 
+  const handleWatchAdsForSlowTimer = () => {
+    setShowSlowTimerOption(false);
+    setHasSlowTimer(true);
+    handleStart();
+  };
+
+  const handleDeclineSlowTimer = () => {
+    setShowSlowTimerOption(false);
+    handleTryAgain();
+  };
+
   const handleWait = () => {
     waitIntervalRef.current = window.setInterval(() => {
       setWaitTimeLeft((prev) => {
@@ -179,6 +207,51 @@ export default function TimerGame({ playerName }: TimerGameProps) {
   }, []);
 
   const topPlayer = leaderboardData?.topPlayer;
+
+  if (showSlowTimerOption) {
+    return (
+      <div className="min-h-screen bg-black flex flex-col pt-32">
+        {topPlayer && (
+          <Top1Banner 
+            playerName={topPlayer.name} 
+            attempts={topPlayer.firstPerfectAttempt} 
+            message="No one can beat me"
+          />
+        )}
+        
+        <div className="flex-1 flex flex-col items-center justify-center p-4 space-y-8">
+          <div className="text-center space-y-6">
+            <h2 className="text-3xl md:text-4xl font-bold text-white">
+              Special Offer!
+            </h2>
+            <p className="text-xl text-white/70">
+              {wrongAttempts} wrong attempts
+            </p>
+            <p className="text-lg text-white/60">
+              Watch 2 ads to slow the timer by 10% for your next attempt
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-4 w-full max-w-md">
+            <Button
+              onClick={handleWatchAdsForSlowTimer}
+              className="h-16 text-lg bg-white text-black hover:bg-white/90"
+            >
+              Watch 2 Ads & Slow Timer
+            </Button>
+            
+            <Button
+              onClick={handleDeclineSlowTimer}
+              variant="outline"
+              className="h-16 text-lg bg-transparent border-2 border-white/20 text-white hover:bg-white/10"
+            >
+              No Thanks, Continue
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (showWaitScreen) {
     return (
