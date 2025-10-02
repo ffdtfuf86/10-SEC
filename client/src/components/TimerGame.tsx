@@ -268,8 +268,14 @@ export default function TimerGame({ playerName }: TimerGameProps) {
 
   if (showMessageInput) {
     return (
-      <div className="min-h-screen bg-black flex flex-col pt-32">
+      <div className="min-h-screen bg-black flex flex-col">
         <div className="flex-1 flex flex-col items-center justify-center p-4 space-y-8">
+          <Top1Banner 
+            playerName={topPlayer?.name || "App Founder"} 
+            attempts={topPlayer?.firstPerfectAttempt || 31} 
+            message={topPlayer?.message || "NO ONE CAN BEAT ME"}
+          />
+          
           <div className="text-center space-y-6">
             <h2 className="text-3xl md:text-4xl font-bold text-white">
               🎉 New Record! 🎉
@@ -314,16 +320,14 @@ export default function TimerGame({ playerName }: TimerGameProps) {
 
   if (showSlowTimerOption) {
     return (
-      <div className="min-h-screen bg-black flex flex-col pt-32">
-        {topPlayer && (
-          <Top1Banner 
-            playerName={topPlayer.name} 
-            attempts={topPlayer.firstPerfectAttempt} 
-            message={topPlayer.message}
-          />
-        )}
-        
+      <div className="min-h-screen bg-black flex flex-col">
         <div className="flex-1 flex flex-col items-center justify-center p-4 space-y-8">
+          <Top1Banner 
+            playerName={topPlayer?.name || "App Founder"} 
+            attempts={topPlayer?.firstPerfectAttempt || 31} 
+            message={topPlayer?.message || "NO ONE CAN BEAT ME"}
+          />
+          
           <div className="text-center space-y-6">
             <h2 className="text-3xl md:text-4xl font-bold text-white">
               Special Offer!
@@ -359,16 +363,14 @@ export default function TimerGame({ playerName }: TimerGameProps) {
 
   if (showWaitScreen) {
     return (
-      <div className="min-h-screen bg-black flex flex-col pt-32">
-        {topPlayer && (
-          <Top1Banner 
-            playerName={topPlayer.name} 
-            attempts={topPlayer.firstPerfectAttempt} 
-            message={topPlayer.message}
-          />
-        )}
-        
+      <div className="min-h-screen bg-black flex flex-col">
         <div className="flex-1 flex flex-col items-center justify-center p-4 space-y-8">
+          <Top1Banner 
+            playerName={topPlayer?.name || "App Founder"} 
+            attempts={topPlayer?.firstPerfectAttempt || 31} 
+            message={topPlayer?.message || "NO ONE CAN BEAT ME"}
+          />
+          
           <div className="text-center space-y-6">
             <h2 className="text-3xl md:text-4xl font-bold text-white">
               Take a Break!
@@ -408,16 +410,14 @@ export default function TimerGame({ playerName }: TimerGameProps) {
   }
 
   return (
-    <div className="min-h-screen bg-black flex flex-col pt-32">
-      {topPlayer && (
+    <div className="min-h-screen bg-black flex flex-col">
+      <div className="flex-1 flex flex-col items-center justify-center p-4 space-y-8">
         <Top1Banner 
-          playerName={topPlayer.name} 
-          attempts={topPlayer.firstPerfectAttempt} 
-          message={topPlayer.message}
+          playerName={topPlayer?.name || "App Founder"} 
+          attempts={topPlayer?.firstPerfectAttempt || 31} 
+          message={topPlayer?.message || "NO ONE CAN BEAT ME"}
         />
-      )}
-      
-      <div className="flex-1 flex flex-col items-center justify-center p-4 space-y-12">
+        
         <TimerDisplay time={time} />
         
         <div className="flex flex-col items-center space-y-8">

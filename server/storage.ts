@@ -113,3 +113,27 @@ export class DbStorage implements IStorage {
 }
 
 export const storage = new DbStorage();
+
+export async function initializeDatabase() {
+  try {
+    const existingFounder = await db
+      .select()
+      .from(players)
+      .where(eq(players.name, "App Founder"))
+      .limit(1);
+    
+    if (existingFounder.length === 0) {
+      await db.insert(players).values({
+        name: "App Founder",
+        totalAttempts: 31,
+        perfectAttempts: 1,
+        firstPerfectAttempt: 31,
+        bestTime: 10.00,
+        message: "NO ONE CAN BEAT ME",
+      });
+      console.log("Founder record initialized");
+    }
+  } catch (error) {
+    console.error("Error initializing founder record:", error);
+  }
+}

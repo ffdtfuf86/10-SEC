@@ -1,8 +1,9 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage, initializeDatabase } from "./storage";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  await initializeDatabase();
   function filterInappropriateContent(message: string): boolean {
     const inappropriateWords = [
       'fuck', 'shit', 'bitch', 'ass', 'damn', 'bastard', 'cunt', 'dick', 'pussy', 'cock',
