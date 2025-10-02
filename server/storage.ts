@@ -1,7 +1,7 @@
 import { type User, type InsertUser, type Player, type InsertPlayer, users, players } from "@shared/schema";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import { Pool, neonConfig } from "@neondatabase/serverless";
-import { eq, asc } from "drizzle-orm";
+import { eq, asc, isNotNull } from "drizzle-orm";
 import ws from "ws";
 
 neonConfig.webSocketConstructor = ws;
@@ -76,7 +76,7 @@ export class DbStorage implements IStorage {
     const result = await db
       .select()
       .from(players)
-      .where(eq(players.firstPerfectAttempt, players.firstPerfectAttempt))
+      .where(isNotNull(players.firstPerfectAttempt))
       .orderBy(asc(players.firstPerfectAttempt))
       .limit(1);
 
