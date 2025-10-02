@@ -34,31 +34,26 @@ export class DbStorage implements IStorage {
   }
 
   async createOrUpdatePlayer(name: string, attempts: number, message?: string): Promise<Player> {
-    const currentBest = await this.getTopPlayer();
-    
-    if (currentBest && currentBest.firstPerfectAttempt && attempts >= currentBest.firstPerfectAttempt) {
-      return currentBest;
-    }
-
     const existingPlayer = await db.select().from(players).where(eq(players.name, name)).limit(1);
     
     if (existingPlayer.length > 0) {
       const player = existingPlayer[0];
-      if (!player.firstPerfectAttempt || attempts < player.firstPerfectAttempt) {
-        const updated = await db
-          .update(players)
-          .set({
-            firstPerfectAttempt: attempts,
-            perfectAttempts: (player.perfectAttempts || 0) + 1,
-            totalAttempts: attempts,
-            bestTime: 10.00,
-            message: message || player.message || "No one can beat me",
-          })
-          .where(eq(players.id, player.id))
-          .returning();
-        return updated[0];
-      }
-      return player;
+      const newFirstPerfectAttempt = !player.firstPerfectAttempt || attempts < player.firstPerfectAttempt 
+        ? attempts 
+        : player.firstPerfectAttempt;
+      
+      const updated = await db
+        .update(players)
+        .set({
+          firstPerfectAttempt: newFirstPerfectAttempt,
+          perfectAttempts: (player.perfectAttempts || 0) + 1,
+          totalAttempts: (player.totalAttempts || 0) + attempts,
+          bestTime: 10.00,
+          message: message || player.message || "No one can beat me",
+        })
+        .where(eq(players.id, player.id))
+        .returning();
+      return updated[0];
     }
 
     const result = await db.insert(players).values({
