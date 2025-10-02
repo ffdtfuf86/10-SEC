@@ -87,6 +87,7 @@ export class DbStorage implements IStorage {
     const allPlayers = await db
       .select()
       .from(players)
+      .where(isNotNull(players.firstPerfectAttempt))
       .orderBy(asc(players.firstPerfectAttempt));
 
     const rank = allPlayers.findIndex(p => p.id === playerId);
@@ -97,6 +98,7 @@ export class DbStorage implements IStorage {
     return await db
       .select()
       .from(players)
+      .where(isNotNull(players.firstPerfectAttempt))
       .orderBy(asc(players.firstPerfectAttempt));
   }
 
