@@ -73,9 +73,9 @@ export default function TimerGame({ playerName, onAttempt }: TimerGameProps) {
   return (
     <div className="min-h-screen bg-black flex flex-col">
       <Top1Banner 
-        playerName="SpeedMaster" 
-        attempts={7} 
-        message="No one can beat my record"
+        playerName="App Founder" 
+        attempts={9} 
+        message="No one can beat me"
       />
       
       <div className="flex-1 flex flex-col items-center justify-center p-4 space-y-12">
