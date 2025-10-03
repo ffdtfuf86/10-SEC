@@ -133,7 +133,7 @@ export default function TimerGame({ playerName }: TimerGameProps) {
   const handleStop = async () => {
     setIsRunning(false);
     setHasStopped(true);
-    let finalTime = time;
+    let finalTime = parseFloat(time.toFixed(2));
     const newAttempts = attempts + 1;
     setAttempts(newAttempts);
 
@@ -157,6 +157,8 @@ export default function TimerGame({ playerName }: TimerGameProps) {
       }
     }
 
+    setTime(finalTime);
+
     const perfect = finalTime === 10.00;
     setIsPerfect(perfect);
 
@@ -164,7 +166,7 @@ export default function TimerGame({ playerName }: TimerGameProps) {
       const newWrongAttempts = wrongAttempts + 1;
       setWrongAttempts(newWrongAttempts);
       
-      if (newAttempts >= 8) {
+      if (newAttempts % 7 === 0) {
         setShowSlowTimerOption(true);
       }
     }
