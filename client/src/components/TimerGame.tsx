@@ -38,6 +38,7 @@ export default function TimerGame({ playerName }: TimerGameProps) {
   const [showMessageInput, setShowMessageInput] = useState(false);
   const [customMessage, setCustomMessage] = useState("");
   const [messageError, setMessageError] = useState("");
+  const [lastStoppedTime, setLastStoppedTime] = useState(0);
   const intervalRef = useRef<number | null>(null);
   const waitIntervalRef = useRef<number | null>(null);
 
@@ -158,6 +159,7 @@ export default function TimerGame({ playerName }: TimerGameProps) {
     }
 
     setTime(finalTime);
+    setLastStoppedTime(finalTime);
 
     const perfect = finalTime === 10.00;
     setIsPerfect(perfect);
@@ -349,6 +351,13 @@ export default function TimerGame({ playerName }: TimerGameProps) {
           />
           
           <div className="text-center space-y-6">
+            <div className="mb-4">
+              <p className="text-white/50 text-sm mb-2">You stopped at:</p>
+              <p className="text-6xl font-bold font-mono text-white/80" data-testid="text-stopped-time">
+                {lastStoppedTime.toFixed(2)}s
+              </p>
+            </div>
+            
             <h2 className="text-3xl md:text-4xl font-bold text-white">
               Special Offer!
             </h2>
@@ -361,6 +370,7 @@ export default function TimerGame({ playerName }: TimerGameProps) {
             <Button
               onClick={handleWatchAdsForSlowTimer}
               className="h-16 text-lg bg-white text-black hover:bg-white/90"
+              data-testid="button-accept-slow-timer"
             >
               Slow Speed to 20%
             </Button>
@@ -369,6 +379,7 @@ export default function TimerGame({ playerName }: TimerGameProps) {
               onClick={handleDeclineSlowTimer}
               variant="outline"
               className="h-16 text-lg bg-transparent border-2 border-white/20 text-white hover:bg-white/10"
+              data-testid="button-decline-slow-timer"
             >
               Leave
             </Button>

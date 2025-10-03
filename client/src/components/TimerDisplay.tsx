@@ -1,10 +1,23 @@
+import { useState, useEffect } from "react";
+
 interface TimerDisplayProps {
   time: number;
   isSlowMode?: boolean;
 }
 
 export default function TimerDisplay({ time, isSlowMode = false }: TimerDisplayProps) {
-  const formattedTime = time.toFixed(2);
+  const [displayTime, setDisplayTime] = useState(time);
+
+  useEffect(() => {
+    if (isSlowMode) {
+      const roundedTime = Math.floor(time * 5) / 5;
+      setDisplayTime(roundedTime);
+    } else {
+      setDisplayTime(time);
+    }
+  }, [time, isSlowMode]);
+
+  const formattedTime = displayTime.toFixed(2);
 
   
   return (
