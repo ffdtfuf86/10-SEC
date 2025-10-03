@@ -31,7 +31,7 @@ export default function TimerGame({ playerName }: TimerGameProps) {
   const [rank, setRank] = useState<number | null>(null);
   const [isPerfect, setIsPerfect] = useState(false);
   const [showWaitScreen, setShowWaitScreen] = useState(false);
-  const [waitTimeLeft, setWaitTimeLeft] = useState(120);
+  const [waitTimeLeft, setWaitTimeLeft] = useState(45);
   const [wrongAttempts, setWrongAttempts] = useState(0);
   const [showSlowTimerOption, setShowSlowTimerOption] = useState(false);
   const [hasSlowTimer, setHasSlowTimer] = useState(false);
@@ -145,10 +145,6 @@ export default function TimerGame({ playerName }: TimerGameProps) {
     if (!perfect) {
       const newWrongAttempts = wrongAttempts + 1;
       setWrongAttempts(newWrongAttempts);
-      
-      if (newWrongAttempts > 0 && newWrongAttempts % 10 === 0 && !hasSlowTimer) {
-        setShowSlowTimerOption(true);
-      }
     }
 
     if (hasSlowTimer) {
@@ -176,9 +172,9 @@ export default function TimerGame({ playerName }: TimerGameProps) {
   };
 
   const handleTryAgain = () => {
-    if (attempts > 0 && attempts % 2 === 0) {
+    if (attempts > 0 && attempts % 5 === 0) {
       setShowWaitScreen(true);
-      setWaitTimeLeft(120);
+      setWaitTimeLeft(45);
     } else {
       handleStart();
     }
@@ -242,7 +238,7 @@ export default function TimerGame({ playerName }: TimerGameProps) {
           }
           setShowWaitScreen(false);
           handleStart();
-          return 120;
+          return 45;
         }
         return prev - 1;
       });
@@ -376,7 +372,7 @@ export default function TimerGame({ playerName }: TimerGameProps) {
               Take a Break!
             </h2>
             <p className="text-xl text-white/70">
-              You've used 2 attempts
+              Choose how to continue
             </p>
           </div>
 
@@ -385,7 +381,7 @@ export default function TimerGame({ playerName }: TimerGameProps) {
               onClick={handleWatchAd}
               className="h-16 text-lg bg-white text-black hover:bg-white/90"
             >
-              Watch 2 Ads to Continue
+              Watch 1 Ad & Continue
             </Button>
             
             <Button
@@ -393,7 +389,7 @@ export default function TimerGame({ playerName }: TimerGameProps) {
               variant="outline"
               className="h-16 text-lg bg-transparent border-2 border-white/20 text-white hover:bg-white/10"
             >
-              Wait {Math.floor(waitTimeLeft / 60)}:{(waitTimeLeft % 60).toString().padStart(2, '0')} to Restart
+              Wait {waitTimeLeft}s to Continue
             </Button>
             
             <Button
