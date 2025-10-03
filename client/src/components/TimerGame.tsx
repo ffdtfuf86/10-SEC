@@ -61,7 +61,7 @@ export default function TimerGame({ playerName }: TimerGameProps) {
 
   useEffect(() => {
     if (isRunning) {
-      const increment = hasSlowTimer ? 0.005 : 0.012;
+      const increment = 0.012;
       intervalRef.current = window.setInterval(() => {
         setTime((prevTime) => {
           const newTime = prevTime + increment;
@@ -435,7 +435,7 @@ export default function TimerGame({ playerName }: TimerGameProps) {
           message={topPlayer?.message || "NO ONE CAN BEAT ME"}
         />
         
-        <TimerDisplay time={time} />
+        <TimerDisplay time={time} isSlowMode={hasSlowTimer && isRunning} />
         
         <div className="flex flex-col items-center space-y-8">
           {!hasStarted && (
