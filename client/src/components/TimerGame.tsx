@@ -133,11 +133,29 @@ export default function TimerGame({ playerName }: TimerGameProps) {
   const handleStop = async () => {
     setIsRunning(false);
     setHasStopped(true);
-    const finalTime = time;
+    let finalTime = time;
     const newAttempts = attempts + 1;
     setAttempts(newAttempts);
 
     playStopSound();
+
+    if (hasSlowTimer && finalTime >= 9.90 && finalTime <= 10.2) {
+      if (finalTime < 10.00) {
+        const distanceFrom10 = 10.00 - finalTime;
+        const adjustment = distanceFrom10 * 0.7;
+        finalTime = parseFloat((finalTime + adjustment).toFixed(2));
+        if (finalTime >= 10.00) {
+          finalTime = 9.99;
+        }
+      } else if (finalTime > 10.00) {
+        const distanceFrom10 = finalTime - 10.00;
+        const adjustment = distanceFrom10 * 0.7;
+        finalTime = parseFloat((finalTime - adjustment).toFixed(2));
+        if (finalTime <= 10.00) {
+          finalTime = 10.01;
+        }
+      }
+    }
 
     const perfect = finalTime === 10.00;
     setIsPerfect(perfect);
