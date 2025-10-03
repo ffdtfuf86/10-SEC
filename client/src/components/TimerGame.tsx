@@ -61,7 +61,7 @@ export default function TimerGame({ playerName }: TimerGameProps) {
 
   useEffect(() => {
     if (isRunning) {
-      const increment = hasSlowTimer ? 0.0024 : 0.012;
+      const increment = hasSlowTimer ? 0.0096 : 0.012;
       intervalRef.current = window.setInterval(() => {
         setTime((prevTime) => {
           const newTime = prevTime + increment;
