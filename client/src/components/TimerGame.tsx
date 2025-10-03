@@ -61,7 +61,7 @@ export default function TimerGame({ playerName }: TimerGameProps) {
 
   useEffect(() => {
     if (isRunning) {
-      const increment = hasSlowTimer ? 0.0108 : 0.012;
+      const increment = hasSlowTimer ? 0.0096 : 0.012;
       intervalRef.current = window.setInterval(() => {
         setTime((prevTime) => {
           const newTime = prevTime + increment;
@@ -145,6 +145,10 @@ export default function TimerGame({ playerName }: TimerGameProps) {
     if (!perfect) {
       const newWrongAttempts = wrongAttempts + 1;
       setWrongAttempts(newWrongAttempts);
+      
+      if (newAttempts >= 8) {
+        setShowSlowTimerOption(true);
+      }
     }
 
     if (hasSlowTimer) {
@@ -328,11 +332,8 @@ export default function TimerGame({ playerName }: TimerGameProps) {
             <h2 className="text-3xl md:text-4xl font-bold text-white">
               Special Offer!
             </h2>
-            <p className="text-xl text-white/70">
-              {wrongAttempts} wrong attempts
-            </p>
             <p className="text-lg text-white/60">
-              Watch 2 ads to slow the timer by 10% for your next attempt
+              Slow the timer by 20% for your next attempt
             </p>
           </div>
 
@@ -341,7 +342,7 @@ export default function TimerGame({ playerName }: TimerGameProps) {
               onClick={handleWatchAdsForSlowTimer}
               className="h-16 text-lg bg-white text-black hover:bg-white/90"
             >
-              Watch 2 Ads & Slow Timer
+              Slow Speed to 20%
             </Button>
             
             <Button
@@ -349,7 +350,7 @@ export default function TimerGame({ playerName }: TimerGameProps) {
               variant="outline"
               className="h-16 text-lg bg-transparent border-2 border-white/20 text-white hover:bg-white/10"
             >
-              No Thanks, Continue
+              Leave
             </Button>
           </div>
         </div>
